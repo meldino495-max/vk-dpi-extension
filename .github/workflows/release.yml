@@ -1,0 +1,43 @@
+name: Release Browser Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      attestations: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 无 bundler：将可加载扩展文件拷入 dist/，根目录含 manifest.json
+      - name: Build
+        run: |
+          mkdir -p dist/icons
+          cp manifest.json background.js popup.html popup.js dist/
+          cp icons/icon16.png icons/icon48.png icons/icon128.png dist/icons/
+          test -f dist/manifest.json
+
+      # 打包：解压后根就是 manifest.json，不是 dist/manifest.json
+      - name: Package Extension
+        run: |
+          cd dist
+          zip -r ../vk-dpi-extension-${{ github.ref_name }}.zip .
+
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: '*.zip'
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: '*.zip'
+          generate_release_notes: true

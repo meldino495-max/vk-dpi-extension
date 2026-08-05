@@ -1,0 +1,17 @@
+安装浏览器插件（只代理 VK）
+
+1. 先运行本地软件：
+   D:\redownload\ruanjian\vk-dpi-proxy\启动代理.bat
+   并点「启动」
+
+2. Chrome 打开 chrome://extensions
+   Edge 打开 edge://extensions
+
+3. 打开右上角「开发者模式」
+
+4. 「加载已解压的扩展程序」→ 选本文件夹：
+   D:\redownload\ruanjian\vk-dpi-extension
+
+5. 点插件图标 →「开启」→ 打开 https://vk.com
+
+不用时：插件点「关闭」；本地软件可点「停止」。
