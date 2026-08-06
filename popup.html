@@ -4,42 +4,67 @@
     <meta charset="UTF-8" />
     <style>
       :root {
-        --bg: #0f1720;
-        --card: #182230;
         --text: #e8eef5;
-        --muted: #9db0c3;
         --accent: #2f8f5b;
-        --danger: #b45309;
+        --card: rgba(255, 255, 255, 0.05);
       }
       * {
         box-sizing: border-box;
       }
       body {
         margin: 0;
-        width: 300px;
-        font: 13px/1.45 "Segoe UI", system-ui, sans-serif;
+        width: 340px;
+        font: 13px/1.45 "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
         color: var(--text);
         background: linear-gradient(160deg, #101820 0%, #1a2836 100%);
       }
       main {
-        padding: 14px 14px 12px;
+        padding: 14px;
       }
       h1 {
-        margin: 0 0 4px;
+        margin: 0 0 2px;
         font-size: 15px;
         font-weight: 650;
       }
       .sub {
         color: #9db0c3;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         font-size: 12px;
+      }
+      .guide {
+        background: var(--card);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 12px;
+      }
+      .guide-title {
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 6px;
+        color: #9fe3b5;
+      }
+      .guide ol {
+        margin: 0;
+        padding-left: 18px;
+        color: #d5e2ef;
+        font-size: 12px;
+      }
+      .guide li {
+        margin: 3px 0;
+      }
+      .guide .tip {
+        margin-top: 8px;
+        font-size: 11px;
+        color: #f0c98a;
+        line-height: 1.4;
       }
       .row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        background: rgba(255, 255, 255, 0.04);
+        background: var(--card);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 10px;
         padding: 10px 12px;
@@ -53,23 +78,19 @@
       .status.off {
         color: #f0b35a;
       }
-      button {
+      button#toggle {
         border: 0;
         border-radius: 8px;
-        padding: 8px 12px;
-        font-weight: 600;
+        min-width: 88px;
+        padding: 10px 14px;
+        font: 600 14px/1.2 "Microsoft YaHei", "Segoe UI", sans-serif;
         cursor: pointer;
         color: #fff;
         background: var(--accent);
+        white-space: nowrap;
       }
-      button.off {
-        background: #4b5563;
-      }
-      ol {
-        margin: 12px 0 0;
-        padding-left: 18px;
-        color: #b7c6d6;
-        font-size: 12px;
+      button#toggle.off {
+        background: #6b7280;
       }
       code {
         font-family: ui-monospace, Consolas, monospace;
@@ -81,28 +102,49 @@
         font-size: 11px;
         color: #d6c29a;
       }
+      .warn.ok {
+        color: #62d28a;
+      }
+      .warn.bad {
+        color: #f0a0a0;
+        font-weight: 600;
+      }
+      .meta {
+        margin-top: 8px;
+        font-size: 11px;
+        color: #7f93a8;
+      }
     </style>
   </head>
   <body>
     <main>
       <h1>VK DPI Proxy Helper</h1>
-      <div class="sub">只把 VK 相关域名送到本地代理，YouTube 等直连。</div>
+      <div class="sub">配合本地软件使用 · 只代理 VK · 不影响 YouTube</div>
+
+      <div class="guide">
+        <div class="guide-title">使用说明（三步）</div>
+        <ol>
+          <li>打开本地软件，点 <b>启动</b>（要显示「运行中」）</li>
+          <li>回到这里，点右侧 <b>开启</b></li>
+          <li>打开 <code>vk.com</code> / <code>vk.ru</code> 即可</li>
+        </ol>
+        <div class="tip">
+          不用时：这里点「关闭」，软件点「停止」。<br />
+          只开插件、不开软件 → 页面会一直转圈。
+        </div>
+      </div>
+
       <div class="row">
         <div>
-          <div class="status" id="status">…</div>
-          <div class="sub" style="margin: 2px 0 0">代理 <code>127.0.0.1:8888</code></div>
+          <div class="status off" id="status">读取中…</div>
+          <div class="sub" style="margin: 2px 0 0">
+            代理 <code>127.0.0.1:8888</code>
+          </div>
         </div>
-        <button id="toggle" type="button">…</button>
+        <button id="toggle" type="button">关闭</button>
       </div>
-      <ol>
-        <li>先运行本地软件并点「启动」</li>
-        <li>再在本插件点「开启」</li>
-        <li>打开 <code>https://vk.com</code></li>
-        <li>不用时点「关闭」，避免影响其它站</li>
-      </ol>
-      <div class="warn">
-        插件本身不能拆 TLS；真正绕 DPI 的是本地代理。请勿同时开系统全局代理。
-      </div>
+      <div class="warn" id="health"></div>
+      <div class="meta">右侧按钮：灰色＝点它关闭 · 绿色＝点它开启</div>
     </main>
     <script src="popup.js"></script>
   </body>

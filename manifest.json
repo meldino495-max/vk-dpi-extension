@@ -1,9 +1,15 @@
 {
   "manifest_version": 3,
   "name": "VK DPI Proxy Helper",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "仅把 VK 相关网站走本地 DPI 代理 (127.0.0.1:8888)，其它网站直连，不影响 YouTube。",
-  "permissions": ["proxy", "storage"],
+  "permissions": ["proxy", "storage", "alarms", "webNavigation"],
+  "host_permissions": [
+    "http://127.0.0.1:8888/*",
+    "http://127.0.0.1:8889/*",
+    "http://localhost:8888/*",
+    "http://localhost:8889/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
