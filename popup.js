@@ -21,7 +21,7 @@ function paint(state) {
     btn.className = "off";
     if (state.proxyUp === false) {
       health.textContent =
-        "本地软件未启动。已临时直连防转圈。要用代理请先开软件，角标应变 ON。";
+        "未检测到本地软件。请先点软件「启动」，否则图片会糊、页面可能转圈。角标 ! = 软件没在听。";
       health.className = "warn bad";
     } else if (state.proxyUp === true) {
       health.textContent = "已检测到本地代理在运行。";

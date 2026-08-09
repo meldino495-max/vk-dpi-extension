@@ -28,15 +28,15 @@ const VK_DOMAINS = [
   "vkuser.net",
 ];
 
-/** @type {boolean|null} last known local proxy health while enabled */
+/** Clear any leftover sun→ps/pp rules from older broken builds. */
+const LEGACY_REDIRECT_RULE_IDS = [1001, 1002, 1003, 1004, 1005, 1006];
+
 let lastProxyUp = null;
 
-function buildPacScript(useProxy) {
+function buildPacScript() {
   const list = VK_DOMAINS.map((d) => JSON.stringify(d)).join(",");
-  if (!useProxy) {
-    // Fail-open: extension ON but local software down → do not blackhole VK
-    return `function FindProxyForURL(url, host) { return "DIRECT"; }`;
-  }
+  // Always PROXY when extension is on — never fall back to DIRECT on a
+  // flaky health check (that skipped CDN rewrite and made every image blurry).
   return `
 function hostMatches(host, domain) {
   host = (host || "").toLowerCase();
@@ -56,6 +56,17 @@ function FindProxyForURL(url, host) {
 `;
 }
 
+async function clearLegacyRedirects() {
+  try {
+    await chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: LEGACY_REDIRECT_RULE_IDS,
+      addRules: [],
+    });
+  } catch (_) {
+    /* optional */
+  }
+}
+
 async function getEnabled() {
   const { enabled } = await chrome.storage.local.get({ enabled: false });
   return !!enabled;
@@ -71,12 +82,14 @@ async function setEnabled(enabled) {
       /* optional */
     }
     await chrome.proxy.settings.clear({ scope: "regular" });
+    await clearLegacyRedirects();
     await updateBadge(false, null);
     return;
   }
+  await applyPac();
+  await clearLegacyRedirects();
   const up = await checkLocalProxy();
   lastProxyUp = up;
-  await applyPac(up);
   await updateBadge(true, up);
   try {
     await chrome.alarms.create("proxy-health", { periodInMinutes: 1 });
@@ -85,12 +98,12 @@ async function setEnabled(enabled) {
   }
 }
 
-async function applyPac(useProxy) {
+async function applyPac() {
   await chrome.proxy.settings.set({
     value: {
       mode: "pac_script",
       pacScript: {
-        data: buildPacScript(!!useProxy),
+        data: buildPacScript(),
         mandatory: true,
       },
     },
@@ -115,7 +128,7 @@ async function updateBadge(enabled, proxyUp) {
 async function checkLocalProxy() {
   for (const url of HEALTH_URLS) {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 500);
+    const t = setTimeout(() => ctrl.abort(), 800);
     try {
       const res = await fetch(url, {
         cache: "no-store",
@@ -136,18 +149,15 @@ async function refreshHealth() {
   try {
     const enabled = await getEnabled();
     if (!enabled) return;
+    // Keep PAC on PROXY; only refresh badge
     const up = await checkLocalProxy();
-    if (up !== lastProxyUp) {
-      lastProxyUp = up;
-      await applyPac(up);
-    }
+    lastProxyUp = up;
     await updateBadge(true, up);
   } catch (_) {
     /* ignore */
   }
 }
 
-// Register messaging FIRST so popup never stays stuck on "…"
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   (async () => {
     try {
@@ -156,11 +166,8 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         let proxyUp = null;
         if (enabled) {
           proxyUp = await checkLocalProxy();
-          if (proxyUp !== lastProxyUp) {
-            lastProxyUp = proxyUp;
-            await applyPac(!!proxyUp);
-            await updateBadge(true, proxyUp);
-          }
+          lastProxyUp = proxyUp;
+          await updateBadge(true, proxyUp);
         }
         sendResponse({
           enabled,
@@ -188,6 +195,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
+  clearLegacyRedirects();
   getEnabled().then((enabled) => {
     if (enabled) setEnabled(true);
     else updateBadge(false, null);
@@ -195,6 +203,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.runtime.onStartup.addListener(() => {
+  clearLegacyRedirects();
   getEnabled().then((enabled) => {
     if (enabled) setEnabled(true);
   });
@@ -205,7 +214,7 @@ try {
     if (alarm.name === "proxy-health") refreshHealth();
   });
 } catch (_) {
-  /* alarms permission missing */
+  /* optional */
 }
 
 try {
@@ -227,5 +236,5 @@ try {
     }
   });
 } catch (_) {
-  /* webNavigation permission missing */
+  /* optional */
 }
