@@ -16,29 +16,35 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       # 无 bundler：将可加载扩展文件拷入 dist/，根目录含 manifest.json
       - name: Build
         run: |
           mkdir -p dist/icons
-          cp manifest.json background.js popup.html popup.js dist/
+          cp manifest.json background.js content.js popup.html popup.js dist/
           cp icons/icon16.png icons/icon48.png icons/icon128.png dist/icons/
           test -f dist/manifest.json
+          test -f dist/content.js
 
       # 打包：解压后根就是 manifest.json，不是 dist/manifest.json
+      # Tag name is data (env), not shell syntax, so a tag cannot inject commands.
       - name: Package Extension
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           cd dist
-          zip -r ../vk-dpi-extension-${{ github.ref_name }}.zip .
+          zip -r "../vk-dpi-extension-${RELEASE_TAG}.zip" .
 
       - name: Attest Build Provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
         with:
           subject-path: '*.zip'
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           files: '*.zip'
           generate_release_notes: true

@@ -2,7 +2,7 @@
 
 Chrome / Edge 扩展：仅把 VK 相关域名走本地代理 `127.0.0.1:8888`，其它网站直连。
 
-须与本地软件 [vk-dpi-proxy](https://github.com/secure-artifacts/vk-dpi-proxy) 一起使用。
+须与本地软件 [vk-dpi-proxy](https://github.com/meldino495-max/vk-dpi-proxy) 一起使用。
 
 ## 安装（开发 / 本地文件夹）
 
@@ -13,8 +13,8 @@ Chrome / Edge 扩展：仅把 VK 相关域名走本地代理 `127.0.0.1:8888`，
 
 ## 从 Release 安装
 
-1. 在 [Releases](https://github.com/secure-artifacts/vk-dpi-extension/releases) 下载 `vk-dpi-extension-vX.Y.Z.zip`
-2. （可选）校验：`gh attestation verify vk-dpi-extension-vX.Y.Z.zip --owner secure-artifacts`
+1. 在 [Releases](https://github.com/meldino495-max/vk-dpi-extension/releases) 下载 `vk-dpi-extension-vX.Y.Z.zip`
+2. （可选）校验：`gh attestation verify vk-dpi-extension-vX.Y.Z.zip --owner meldino495-max`
 3. 解压到稳定目录（不要再移动）
 4. `chrome://extensions` → 开发者模式 → 加载已解压的扩展程序 → 选解压目录
 

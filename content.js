@@ -31,6 +31,7 @@
     try {
       const u = new URL(url, location.href);
       if (!/^https?:$/i.test(u.protocol)) return false;
+      if (u.username || u.password) return false;
       const h = u.hostname.toLowerCase();
       if (SKIP_HOST_RE.test(h)) return false;
       return IMAGE_HOST_RE.test(h);

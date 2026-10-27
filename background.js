@@ -158,7 +158,18 @@ async function refreshHealth() {
   }
 }
 
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+function fromExtensionPage(sender) {
+  const id = chrome.runtime.id;
+  if (!sender || sender.id !== id) return false;
+  const url = sender.url || "";
+  return url.startsWith(`chrome-extension://${id}/`);
+}
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!fromExtensionPage(sender)) {
+    sendResponse({ ok: false });
+    return;
+  }
   (async () => {
     try {
       if (msg?.type === "getState") {
