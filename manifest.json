@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "VK DPI Proxy Helper",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "仅把 VK 相关网站走本地 DPI 代理 (127.0.0.1:8888)，并改善群聊图片点击打开。其它网站直连。",
   "permissions": [
     "proxy",
